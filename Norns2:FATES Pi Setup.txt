@@ -1,0 +1,505 @@
+### Download raspbian stretch lite 
+https://www.raspberrypi.org/downloads/
+
+### write to sdcard 
+# https://etcher.io
+
+### add ssh and wpa-supplicant files to boot partition of sd card 
+# some details here https://caffinc.github.io/2016/12/raspberry-pi-3-headless/
+
+### Boot the PI
+### login with default user:pass - pi:raspberry
+
+### follow norns setup
+https://github.com/monome/norns-image/blob/master/build-dev-image.md
+
+### raspi-config
+## (Localization -  select your own region for this  )
+
+sudo raspi-config
+	Change password: sleep
+	Network > Hostname (norns)
+	Network > Wifi (set SSID/password)
+	Interfacing > SSH (on)
+	Interfacing > i2c (on)
+	Interfacing > SPI (on)
+	Advanced > Expand File System
+	Localization > (en-US-UTF8, US-UTF8)
+	
+###Finish, Reboot
+###check IP address (ifconfig)
+
+###change user name to `we`
+
+sudo passwd root
+
+###logout, login as root (easiest to with keyboard directly connected)
+
+	usermod -l we -d /home/we -m pi
+	groupmod --new-name we pi
+
+###exit, login as we (Can jump back to SSH here)
+sudo passwd -l root
+
+#disable need for passwd with sudo
+sudo nano /etc/sudoers.d/010...
+#change 'pi' to 'we'
+
+
+### Run updates
+### Install git, build dependencies, etc
+
+sudo apt-get update
+sudo apt-get install vim git bc i2c-tools
+sudo apt-get -y install libncurses5-dev
+
+sudo wget https://monome.nyc3.digitaloceanspaces.com/dt-blob.bin
+sudo mv dt-blob.bin /boot/
+
+
+
+### update kernel with oled display module/driver
+
+# get linux sources
+
+git clone --depth 1 --branch rpi-4.14.y-rt https://github.com/raspberrypi/linux, commit hash 22bb67b8e2e809d0bb6d435c1d20b409861794d2
+
+// git clone --depth=1 https://github.com/monome/linux
+
+
+### COMPILE JUST THE DISPLAY MODULE
+
+cd ~/linux
+
+## Preparing the kernel module compilation
+
+    ## check which linux kernel you have with 
+    ## and compare that to current linux headers
+    
+    uname -r
+
+    # check headers to see if they match
+	ls /usr/src/linux-headers*
+	ls /lib/modules/
+	
+	#if they don't match
+	
+		apt-cache policy raspberrypi-kernel raspberrypi-kernel-headers
+
+	# check to see if there's a candidate for raspberrypi-kernel that matches
+	# then do (example here for 4.14.98)
+
+		sudo apt-get install raspberrypi-kernel=1.20190215-1
+		sudo reboot
+
+	# then you need to get configs from the linux headers
+
+    cp /usr/src/linux-headers-$(uname -r)/Module.symvers .
+    cp /usr/src/linux-headers-$(uname -r)/.config .
+
+
+make modules_prepare
+
+# select "n" for "Support for monome-snd"
+# select "m" for ssd1322
+
+## Always run 'make prepare' after changing the kernel config
+make prepare
+
+## compile / make
+make -C ~/linux SUBDIRS=drivers/staging/fbtft modules
+
+## move the drivers    
+sudo cp -v ~/linux/drivers/staging/fbtft/*.ko /lib/modules/$(uname -r)/kernel/drivers/staging/fbtft/
+
+sudo depmod -a
+
+
+sudo reboot
+
+### package installs
+### follow instructions for apt-get, accept all defaults
+### updated to use https://package.monome.org/
+
+curl https://keybase.io/artfwo/pgp_keys.asc | sudo apt-key add -
+echo "deb https://package.monome.org/ stretch main" | sudo tee /etc/apt/sources.list.d/norns.list
+
+sudo apt update
+sudo apt install --no-install-recommends jackd2
+sudo apt-get install libboost1.62-dev
+sudo apt-get install libjack-jackd2-dev
+sudo apt install libmonome-dev libnanomsg-dev supercollider-language supercollider-server supercollider-supernova supercollider-dev liblua5.3-dev libudev-dev libevdev-dev liblo-dev libcairo2-dev liblua5.3-dev libavahi-compat-libdnssd-dev libasound2-dev 
+sudo apt install dnsmasq
+sudo apt install sc3-plugins ladspalist
+sudo apt install usbmount
+
+# for DAC Audio
+sudo apt-get install alsa-utils
+sudo apt-get install libi2c-dev
+
+sudo nano /lib/systemd/system/systemd-udevd.service  
+# change slave to shared, as instructed
+
+
+### DAC Audio Config for FATES WM8731 DAC
+
+# modify boot/config.txt for DAC 
+
+sudo nano /boot/config.txt
+
+dtparam=i2c_arm=on
+dtparam=spi=on
+dtparam=i2s=on
+dtoverlay=i2s-mmap
+dtoverlay=rpi-proto
+
+dtparam=audio=off 
+
+# blacklist onboard audio
+# edit  raspi-blacklist.conf 
+
+sudo nano /etc/modprobe.d/raspi-blacklist.conf
+	#add
+	blacklist snd_bcm2835
+
+
+# create asound.conf
+sudo nano /etc/asound.conf
+
+#add
+pcm.!default  {
+  type hw card 0
+}
+
+ctl.!default {
+  type hw card 0
+}
+
+# edit alsa.conf 
+sudo nano /usr/share/alsa/alsa.conf 
+
+# comment out the following lines
+	#pcm.front cards.pcm.front
+	#pcm.rear cards.pcm.rear
+	#pcm.center_lfe cards.pcm.center_lfe
+	#pcm.side cards.pcm.side
+	#pcm.surround21 cards.pcm.surround21
+	#pcm.surround40 cards.pcm.surround40
+	#pcm.surround41 cards.pcm.surround41
+	#pcm.surround50 cards.pcm.surround50
+	#pcm.surround51 cards.pcm.surround51
+	#pcm.surround71 cards.pcm.surround71
+	#pcm.iec958 cards.pcm.iec958
+	#pcm.hdmi cards.pcm.hdmi
+	#pcm.modem cards.pcm.modem
+	#pcm.phoneline cards.pcm.phoneline
+
+	
+# Go ahead and reboot now
+sudo reboot
+
+# check your device name
+aplay -l 
+
+# check mixer ids
+amixer controls
+
+# set mixer values (or you can do this with alsamixer)
+amixer cset numid=13 on #Output Mixer HiFi Playback Switch
+amixer cset numid=4 on #Line Capture Switch
+amixer cset numid=8 on #ADC High Pass Filter Switch
+amixer cset numid=10 on #Playback Deemphasis Switch
+amixer cset numid=3 0% # Capture Volume
+
+sudo alsactl store
+
+# test audio
+speaker-test -t sine -f 440 -c 2 -D sysdefault:sndrpiproto
+
+# restart alsa
+alsactl init
+
+# or you can reboot your soundcard directly
+sudo /etc/init.d/alsa-utils restart
+
+
+# use hw:(card name here) or hw:(card-number) below
+# and test if jackd is working
+export JACK_NO_AUDIO_RESERVATION=1
+jackd -R -P 95 -d alsa -d hw:0 -r 48000 -n 3 -p 128 -S -s
+
+#reference from jack.init
+/usr/bin/jackd -R -P 95 -d alsa -d hw:0 -r 48000 -n 3 -p 128 -S -s
+
+# after installing norns - check jack configs here
+sudo nano ~/norns-image/config/jackdrc
+sudo nano ~/norns-image/config/norns-jack.service
+
+
+## USB Audio Config (if needed)
+
+# blacklist onboard audio as above
+
+# Comment out options snd-usb-audio so it can load first
+sudo nano /lib/modprobe.d/aliases.conf
+	# options snd-usb-audio index=-2
+
+# check your device name with audio device plugged in
+aplay -l 
+
+
+## NETWORK
+
+sudo nano /etc/network/interfaces
+	# add this so network-manager does not take over wifi
+auto wlan0
+
+	# then install network-manager and reboot
+sudo apt install network-manager
+
+## end of install will kick you off wifi and give you a new IP address.
+## handy to have a keyboard and monitor attached here to login directly and get your IP address with ifconfig
+## or to reboot
+
+
+## Overlays
+# sftp overlay files to home directory then copy to boot
+
+sudo cp norns-buttons-encoders.dtbo /boot/overlays/norns-buttons-encoders.dtbo
+sudo cp ssd1322-fates.dtbo /boot/overlays/ssd1322-fates.dtbo
+rm norns-buttons-encoders.dtbo
+rm ssd1322-fates.dtbo
+
+
+# NORNS SETUP
+
+### setup norns image
+
+git clone https://github.com/monome/norns-image.git 
+cd norns-image
+
+# do not run setup.sh YET
+
+### norns setup config
+
+nano setup.sh 
+	# comment out 
+	#sudo apt install network-manager dnsmasq-base midisport-firmware
+
+	# comment out dhcp/interfaces copies so it does not hose your wifi when you install
+	#sudo cp config/interfaces /etc/network/interfaces
+
+
+nano config/norns-jack.service 
+	# change to your soundcard, if your using a usb soundcard, you'll may need to change buffer size (-p) 
+
+
+# framebuffer setup for oled
+nano config/norns-matron.service 
+	# add -f/dev/fb1
+	ExecStart=/home/we/norns/build/ws-wrapper/ws-wrapper ws://*:5555 /home/we/norns/build/matron/matron -f/dev/fb1
+	
+nano scripts/init-norns.sh 
+	# comment out i2cset commands
+	#sudo i2cset -y 1 0x28 0x00
+	#sudo i2cset -y 1 0x28 0x40
+	
+	#sudo i2cset -y 1 0x29 0x00
+	#sudo i2cset -y 1 0x29 0x40
+
+	# may need to comment out amixer set line depending on your DAC setup
+	
+# now run setup.sh
+./setup.sh
+
+
+### install norns
+
+cd ~
+git clone https://github.com/monome/norns.git
+cd norns
+
+# PRE 2.0
+git checkout dev  
+
+./waf configure
+./waf
+
+# run sclang 
+sclang
+
+# cmd-D to exit
+
+### install sc
+cd sc
+./install.sh
+
+### add framebuffer to matron.sh
+sudo nano ~/norns/matron.sh
+
+	./build/ws-wrapper/ws-wrapper ws://*:5555 ./build/matron/matron -f/dev/fb1
+
+
+### Dust and Maiden
+
+## Copy dust from updater tar?
+
+
+## Get maiden from github releases:
+# https://github.com/monome/maiden/releases
+
+wget https://github.com/monome/maiden/releases/download/v0.12/maiden-v0.12.tgz
+tar -xvf maiden-v0.12.tgz
+rm maiden-v0.12.tgz
+
+
+### VERIFY SCREEN AND ENCODERS ARE WORKING 
+### and then reset networking 
+
+
+# reset network interfaces
+
+sudo cp ~/norns-image/config/interfaces /etc/network/interfaces
+
+# rename /etc/wpa_supplicant/wpa_supplicant.conf to something else and reboot.
+
+sudo mv /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant_bak.conf
+
+# reboot and the device will come up with no IP
+
+# use the Norns Wifi menu to join your wifi network
+
+
+
+
+####### NOTES
+
+## check framebuffer
+
+# will tell you what the fb numbers are
+cat /proc/fb 
+
+# 0 BCM2708 FB is default
+
+# check to see if fb_ssd1322 is working
+    sudo modprobe fbtft_device custom name=fb_ssd1322 debug=1 speed=16000000 gpios=reset:15,dc:14
+
+
+		Application software that uses the frame buffer device (e.g. the X server) will use /dev/fb0 by default (older software uses /dev/fb0current). You can specify an alternative frame buffer device by setting the environment variable $FRAMEBUFFER to the path name of a frame buffer device, e.g. (for sh/bash users):
+
+		export FRAMEBUFFER=/dev/fb1
+
+	# add that to rc.local?
+	# https://github.com/torvalds/linux/blob/master/Documentation/fb/framebuffer.txt
+
+
+## network manager ??
+### https://wiki.debian.org/WiFi/HowToUse
+### https://unix.stackexchange.com/questions/299683/wpa-supplicant-and-network-management-tools
+### https://wiki.debian.org/NetworkManager#FAQ
+### https://wiki.gnome.org/Projects/NetworkManager
+
+### Find your wireless interface and bring it up:
+su
+ip a
+iwconfig
+ip link set wlan0 up
+
+###Scan for available networks and get network details:
+$ su
+# iwlist scan
+
+
+
+
+### Overlays
+# compile dts files for overlays
+# .dts needs to be compiled to .dtbo and then the .dtbo and copy to /boot/overlays/
+
+# norns-buttons-encoders-overlay
+sudo dtc -W no-unit_address_vs_reg -@ -I dts -O dtb -o /boot/overlays/norns-buttons-encoders.dtbo norns-buttons-encoders-overlay.dts
+
+# ssd1322
+sudo dtc -W no-unit_address_vs_reg -@ -I dts -O dtb -o /boot/overlays/ssd1322-fates.dtbo ssd1322-fates-overlay.dts 
+
+
+# Add overlay to  /boot/config.txt so it loads the button/encoder overlay:
+sudo nano /boot/config.txt
+
+	# Buttons and encoders
+	dtoverlay=norns-buttons-encoders
+	dtoverlay=ssd1322-fates
+
+
+
+### Maiden 
+
+# test:
+./maiden.arm -debug -app app/build/ -data ~/norns/lua
+
+
+
+
+## WiFi problem? (norns-init.service wont launch)
+
+# run wifi scripts to set them up the first time
+cd ~/norns
+./wifi.sh scan 
+./wifi.sh on 
+
+
+
+
+
+###  MODS for RPI
+
+## MODS FOR FATES / WM8731 codec
+
+
+## Screen framebuffer mod
+
+# ~/norns/matron/src/hardware/screen.c
+
+sudo nano ~/norns/matron/src/hardware/screen.c
+
+# at line 138 - change to fb1
+
+void screen_init(void) {
+surfacefb = cairo_linuxfb_surface_create("/dev/fb0");
+if(surfacefb == NULL) { return; }
+crfb = cairo_create(surfacefb);
+
+
+
+### SAMBA
+# See  https://oshlab.com/setting-samba-raspberry-pi/
+
+sudo apt-get install samba samba-common-bin
+sudo nano /etc/samba/smb.conf
+
+wins support = yes
+
+[Terminal Tedium]
+ path=/home/pi/terminal_tedium
+ browseable=Yes
+ writeable=Yes
+ only guest=no
+ create mask=0777
+ directory mask=0777
+
+[PdPatch]
+ comment=Pd Patch Share
+ path=/home/pi/pdpatch
+ browseable=Yes
+ writeable=Yes
+ only guest=no
+ create mask=0777
+ directory mask=0777
+ public=no
+
+# then
+sudo smbpasswd -a pi
+
+sudo update-rc.d smbd enable
+sudo update-rc.d nmbd enable
+sudo service smbd restart
