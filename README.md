@@ -27,13 +27,14 @@ copy `.config` to
 Then compile
 
 ```
-	# Build kernel for Pi 2, Pi 3, Pi 3+ and Compute Module 3
+# Build kernel for Pi 2, Pi 3, Pi 3+ and Compute Module 3
 	
 export KERNEL=kernel7
 make mrproper
 make bcm2709_defconfig 
 
 make modules_prepare
+
 # just to check that CONFIG_FB_TFT_SSD1322=m
 
 make -j4 zImage modules dtbs
@@ -46,3 +47,5 @@ sudo cp arch/arm/boot/zImage /boot/$KERNEL.img
 ```
 
 and reboot
+
+then copy overlay .dtbo files later
