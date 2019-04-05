@@ -283,11 +283,14 @@ cd norns-image
 ### norns setup config
 
 nano setup.sh 
-	# comment out 
+	# comment out (if not already)
 	#sudo apt install network-manager dnsmasq-base midisport-firmware
 
 	# comment out dhcp/interfaces copies so it does not hose your wifi when you install
 	#sudo cp config/interfaces /etc/network/interfaces
+
+	# add (if not there)
+	sudo cp --remove-destination config/norns-init.service /etc/systemd/system/norns-init.service
 
 
 nano config/norns-jack.service 
@@ -308,7 +311,29 @@ nano scripts/init-norns.sh
 	#sudo i2cset -y 1 0x29 0x40
 
 	# may need to comment out amixer set line depending on your DAC setup
-	
+
+# Bring back or create norns-init.service (example file is in this repo)
+nano config/norns-init.service
+
+[Unit]
+Description=norns-init
+
+[Service]
+Type=oneshot
+
+ExecStart=/bin/sh -c "/bin/echo -n performance > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
+
+[Install]
+WantedBy=norns.target
+
+
+# then re-add norns-init to norns.target
+nano config/norns.target
+
+Requires=norns-init.service
+
+
+
 # now run setup.sh
 ./setup.sh
 
