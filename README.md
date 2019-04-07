@@ -33,6 +33,7 @@ export KERNEL=kernel7
 make mrproper
 make bcm2709_defconfig 
 
+
 make modules_prepare
 
 # just to check that CONFIG_FB_TFT_SSD1322=m
