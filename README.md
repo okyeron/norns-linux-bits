@@ -4,14 +4,40 @@ Starting from a fresh Stretch image (from etcher)
 
 ```
 sudo raspi-config
+	Change password: sleep
+	Network > Hostname (norns)
 	Interfacing > SSH (on)
 	Interfacing > i2c (on)
 	Interfacing > SPI (on)
 	Advanced > Expand File System
 	Localization > (en-US-UTF8, US-UTF8)
-	
-###Finish, Reboot
+```	
 
+Finish, Reboot
+
+Change user name to `we`
+
+```
+sudo passwd root
+```
+logout, login as root (best to do this with keyboard directly connected)
+```
+usermod -l we -d /home/we -m pi
+groupmod --new-name we pi
+```
+Exit, login as we (Can jump back to SSH here)
+```
+sudo passwd -l root
+```
+
+Disable need for passwd with sudo
+```
+sudo nano /etc/sudoers.d/010...
+```
+Change `pi` to `we`
+
+Run updates, install git, build dependencies, etc
+```
 cd ~
 sudo apt-get update 
 sudo apt-get dist-upgrade
