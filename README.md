@@ -4,9 +4,6 @@ Starting from a fresh Stretch image (from etcher)
 
 ```
 sudo raspi-config
-	Change password: sleep
-	Network > Hostname (norns)
-	Network > Wifi (set SSID/password)
 	Interfacing > SSH (on)
 	Interfacing > i2c (on)
 	Interfacing > SPI (on)
