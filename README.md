@@ -17,6 +17,7 @@ git checkout 22bb67b8e2e809d0bb6d435c1d20b409861794d2
 copy files from `drivers-staging-fbtft` folder to 
 
 ```
+cd ~/norns-linux-bits
 cp norns-linux-bits/drivers-staging-fbtft/* /home/we/linux/drivers/staging/fbtft/
     
 ```
@@ -43,7 +44,9 @@ Then compile
 
 ```
 # Build kernel for Pi 2, Pi 3, Pi 3+ and Compute Module 3
-	
+
+cd ~/linux
+
 export KERNEL=kernel7
 make mrproper
 make bcm2709_defconfig 
