@@ -98,6 +98,10 @@ make bcm2709_defconfig
 make modules_prepare
 
 # just to check that CONFIG_FB_TFT_SSD1322=m
+make menuconfig
+        	Device Drivers  ---> Staging Drivers ---> Support for small TFT LCD display modules  --->
+        	<M>   SSD1322 driver
+
 
 make -j4 zImage modules dtbs
 sudo make modules_install
