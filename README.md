@@ -115,3 +115,8 @@ sudo cp arch/arm/boot/zImage /boot/$KERNEL.img
 and reboot
 
 then copy overlay .dtbo files later
+
+```
+sudo cp ~/norns-linux-bits/overlays/norns-buttons-encoders.dtbo /boot/overlays
+sudo cp ~/norns-linux-bits/overlays/ssd1322-fates.dtbo /boot/overlays/
+```
