@@ -11,18 +11,24 @@ git checkout 22bb67b8e2e809d0bb6d435c1d20b409861794d2
 
 copy files from `drivers-staging-fbtft` folder to 
 
-`/home/we/linux/drivers/staging/fbtft/`
+```
+    /home/we/linux/drivers/staging/fbtft/
+```
 
 
 copy `bcm2709_defconfig` from `arch-arm-configs` folder to 
 
-`/home/we/linux/arch/arm/configs/`
+```
+     /home/we/linux/arch/arm/configs/
+```
 
 (repalcing the one that's there)
 
 copy `.config` to
 
-`/home/we/linux`
+```
+    /home/we/linux
+```
 
 
 
