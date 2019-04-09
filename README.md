@@ -32,9 +32,10 @@ Exit, login as we (Can jump back to SSH here)
 sudo passwd -l root
 ```
 
-Disable need for passwd with sudo
+Disable need for passwd with sudo - look for 010_pi-nopasswd or similar
 ```
-sudo nano /etc/sudoers.d/010...
+ls /etc/sudoers.d/
+ssudo nano /etc/sudoers.d/010...
 ```
 Change `pi` to `we`
 
