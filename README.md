@@ -1,6 +1,6 @@
 # compile instructions for norns on raspberry pi with 4.14.y-rt
 
-Starting from a fresh copy of Stretch
+Starting from a fresh Stretch image (from etcher)
 
 ```
 cd ~
