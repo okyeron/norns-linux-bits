@@ -14,7 +14,7 @@ we want commit hash `22bb67b8e2e809d0bb6d435c1d20b409861794d2` so...
 git checkout 22bb67b8e2e809d0bb6d435c1d20b409861794d2
 ```
 
-copy files from `drivers-staging-fbtft` folder to 
+copy files from my `drivers-staging-fbtft` folder to 
 
 ```
 
@@ -23,7 +23,7 @@ cp ~/norns-linux-bits/drivers-staging-fbtft/* /home/we/linux/drivers/staging/fbt
 ```
 
 
-copy `bcm2709_defconfig` from `arch-arm-configs` folder to 
+copy my `bcm2709_defconfig` from `arch-arm-configs` folder to 
 
 ```
 cp ~/norns-linux-bits/arch-arm-configs/bcm2709_defconfig /home/we/linux/arch/arm/configs/bcm2709_defconfig
@@ -32,7 +32,7 @@ cp ~/norns-linux-bits/arch-arm-configs/bcm2709_defconfig /home/we/linux/arch/arm
 
 (repalcing the one that's there)
 
-copy `.config` to
+copy my `.config` to
 
 ```
 cp ~/norns-linux-bits/.config /home/we/linux/.config
