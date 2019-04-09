@@ -114,14 +114,7 @@ sudo cp arch/arm/boot/zImage /boot/$KERNEL.img
 
 and reboot
 
-then copy overlay .dtbo files later
-
-```
-sudo cp ~/norns-linux-bits/overlays/norns-buttons-encoders.dtbo /boot/overlays
-sudo cp ~/norns-linux-bits/overlays/ssd1322-fates.dtbo /boot/overlays/
-```
-
-Test: (adjust if using different GPIOs)
+Test ssd1322: (adjust if using different GPIOs)
 ```
 sudo modprobe fbtft_device custom name=fb_ssd1322 width=128 height=64 speed=16000000 gpios=reset:15,dc:14
 ```
@@ -136,3 +129,11 @@ fbtft                  45056  2 fbtft_device,fb_ssd1322
 `con2fbmap 1 1` to show terminal console on OLED or `con2fbmap 1 0` to go back to HDMI (fb0) - NOTE OLED will not clear until you reboot or do some other screen activity
 
 
+Then copy overlay .dtbo files for norns
+
+```
+sudo cp ~/norns-linux-bits/overlays/norns-buttons-encoders.dtbo /boot/overlays
+sudo cp ~/norns-linux-bits/overlays/ssd1322-fates.dtbo /boot/overlays/
+```
+
+See norns install instuctions for how to enable the ssd1322 in norns-image service modules.
