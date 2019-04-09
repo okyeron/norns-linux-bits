@@ -3,7 +3,24 @@
 Starting from a fresh Stretch image (from etcher)
 
 ```
+sudo raspi-config
+	Change password: sleep
+	Network > Hostname (norns)
+	Network > Wifi (set SSID/password)
+	Interfacing > SSH (on)
+	Interfacing > i2c (on)
+	Interfacing > SPI (on)
+	Advanced > Expand File System
+	Localization > (en-US-UTF8, US-UTF8)
+	
+###Finish, Reboot
+
 cd ~
+sudo apt-get update 
+sudo apt-get dist-upgrade
+sudo apt-get install vim git bc i2c-tools 
+sudo apt-get -y install libncurses5-dev 
+
 git clone https://github.com/okyeron/norns-linux-bits.git
 
 git clone --depth 1 --branch rpi-4.14.y-rt https://github.com/raspberrypi/linux
