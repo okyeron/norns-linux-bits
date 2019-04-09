@@ -11,6 +11,8 @@ sudo raspi-config
 	Interfacing > SPI (on)
 	Advanced > Expand File System
 	Localization > (en-US-UTF8, US-UTF8)
+	Localization Options > Change Timezone
+	Localization WiFi Country > Change Timezone	
 ```	
 
 Finish, Reboot
