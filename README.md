@@ -1,6 +1,9 @@
 # compile instructions for norns on raspberry pi with 4.14.y-rt
 
+Starting from a fresh copy of Stretch
+
 ```
+cd ~
 git clone --depth 1 --branch rpi-4.14.y-rt https://github.com/raspberrypi/linux
 cd linux
 ```
