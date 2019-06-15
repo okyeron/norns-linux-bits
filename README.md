@@ -1,3 +1,7 @@
+# This guide is the full manual install process. A scripted/automated install is available for Fates.
+
+see [Fates](https://github.com/okyeron/fates) instructions if you're using a Fates board.
+
 # compile instructions for norns on raspberry pi with 4.14.y-rt
 
 Starting from a fresh Stretch image (from etcher)
