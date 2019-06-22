@@ -19,21 +19,21 @@ static int init_display(struct fbtft_par *par)
 {
         /* Initialization for LM560G-256064 5.6" OLED display */
 	par->fbtftops.reset(par);
-	//-1, 0xFD, 0x12,	              /* Unlock OLED driver IC */
+	//-1, 0xFD, 0x12,	          /* Unlock OLED driver IC */
 	write_reg(par, 0xAE);             /* Display OFF (blank) */
 	write_reg(par, 0xB9);	          /* Select default linear grayscale */
-	write_reg(par, 0xB3, 0x91);	      /* Display divide clockratio/frequency */
-	write_reg(par, 0xCA, 0x3F);	      /* Multiplex ratio, 1/64, 64 COMS enabled */
-	write_reg(par, 0xA2, 0x00);	      /* Set offset, the display map starting line is COM0 */
+	write_reg(par, 0xB3, 0x91);	  /* Display divide clockratio/frequency */
+	write_reg(par, 0xCA, 0x3F);	  /* Multiplex ratio, 1/64, 64 COMS enabled */
+	write_reg(par, 0xA2, 0x00);	  /* Set offset, the display map starting line is COM0 */
 	write_reg(par, 0xA1, 0x00);       /* Set start line position */
-	write_reg(par, 0xA0, 0x16, 0x11); /* Set remap, horiz address increment, disable colum address remap, */
-	                                  /*  enable nibble remap, scan from com[N-1] to COM0, disable COM split odd even */
-	write_reg(par, 0xAB, 0x01);	      /* Select external VDD */
+	write_reg(par, 0xA0, 0x04, 0x11); /* Set remap, horiz address increment, disable colum address remap, */
+	/*  enable nibble remap, scan from com[N-1] to COM0, disable COM split odd even */
+	write_reg(par, 0xAB, 0x01);	  /* Select external VDD */
 	write_reg(par, 0xB4, 0xA0, 0xFD); /* Display enhancement A, external VSL, enhanced low GS display quality */
 	write_reg(par, 0xC1, 0x7F);	  /* Contrast current, 256 steps, default is 0x7F */
 	write_reg(par, 0xC7, 0x0F);	  /* Master contrast current, 16 steps, default is 0x0F */
 	write_reg(par, 0xB1, 0xF2);	  /* Phase Length */
-	//-1, 0xD1, 0x82, 0x20	      /* Display enhancement B */
+	//-1, 0xD1, 0x82, 0x20	          /* Display enhancement B */
 	write_reg(par, 0xBB, 0x1F);	  /* Pre-charge voltage */
 	write_reg(par, 0xBE, 0x04);	  /* Set VCOMH */
 	write_reg(par, 0xA6);		  /* Normal display */
