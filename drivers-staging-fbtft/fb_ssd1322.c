@@ -26,7 +26,7 @@ static int init_display(struct fbtft_par *par)
 	write_reg(par, 0xCA, 0x3F);	  /* Multiplex ratio, 1/64, 64 COMS enabled */
 	write_reg(par, 0xA2, 0x00);	  /* Set offset, the display map starting line is COM0 */
 	write_reg(par, 0xA1, 0x00);       /* Set start line position */
-	write_reg(par, 0xA0, 0x16, 0x11); /* Set remap, horiz address increment, disable colum address remap, */
+	write_reg(par, 0xA0, 0x04, 0x11); /* Set remap, horiz address increment, disable colum address remap, */
 	/*  enable nibble remap, scan from com[N-1] to COM0, disable COM split odd even */
 	write_reg(par, 0xAB, 0x01);	  /* Select external VDD */
 	write_reg(par, 0xB4, 0xA0, 0xFD); /* Display enhancement A, external VSL, enhanced low GS display quality */
