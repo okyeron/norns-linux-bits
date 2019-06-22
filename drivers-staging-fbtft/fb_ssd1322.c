@@ -51,8 +51,8 @@ static int init_display(struct fbtft_par *par)
 	write_reg(par, 0xCA, 0x3F); /* Multiplex ratio, 1/64, 64 COMS enabled */
 	write_reg(par, 0xA2, 0x00); /* Set offset, the display map starting line is COM0 */
 	write_reg(par, 0xA1, 0x00); /* Set start line position */
-								/* Set remap, horiz address increment, disable colum address remap, */
-								/*  enable nibble remap, scan from com[N-1] to COM0, disable COM split odd even */
+	/* Set remap, horiz address increment, disable colum address remap, */
+	/*  enable nibble remap, scan from com[N-1] to COM0, disable COM split odd even */
 	if (par->info->var.rotate == 180)
 		write_reg(par, 0xa0, 0x04, 0x11);
 	else
